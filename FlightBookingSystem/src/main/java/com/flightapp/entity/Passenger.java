@@ -11,10 +11,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 @Entity
-@Data
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Passenger {
 	  @Id
 	  @GeneratedValue(strategy=GenerationType.IDENTITY)

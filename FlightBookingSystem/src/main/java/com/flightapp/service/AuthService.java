@@ -11,20 +11,23 @@ import com.flightapp.entity.User;
 public class AuthService {
 	@Autowired
 private UserRepository userRepository;
-private Map<String,String> userSessions=new HashMap<>();
+Map<String,String> userSessions=new HashMap<>();
 public User register(User user) {
     return userRepository.save(user);
 }
 
-public String login( String email, String password) {
-	User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user is not found"));
-	if(user==null || !user.getPassword().equals(password))
-		return null;
-	String sessionId=UUID.randomUUID().toString();
-	userSessions.put(sessionId,email);
-	return sessionId;
-	
+public String login(String email, String password) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("user is not found"));
+
+    if (!user.getPassword().equals(password))
+        return null;
+
+    String sessionId = UUID.randomUUID().toString();
+    userSessions.put(sessionId, email);
+    return sessionId;
 }
+
 public User getAdmin(String email) {
 	User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("no user found"));
 	return user;

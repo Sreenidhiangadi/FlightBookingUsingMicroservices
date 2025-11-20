@@ -2,6 +2,11 @@ package com.flightapp.entity;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,13 +20,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Ticket {
 	 @Id
 	 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,13 +45,13 @@ public class Ticket {
 	
 	@NotNull(message = "Departure flight is required")
     @ManyToOne
-    @JoinColumn(name = "departure_flight_id")
-	@JsonBackReference
+    @JoinColumn
+	@JsonBackReference("departure-flight")
     private Flight departureFlight;
 	
     @ManyToOne
-    @JoinColumn(name = "return_flight_id")
-    @JsonBackReference
+    @JoinColumn
+    @JsonBackReference("return-flight")
     private Flight returnFlight;
     
     @Enumerated(EnumType.STRING)

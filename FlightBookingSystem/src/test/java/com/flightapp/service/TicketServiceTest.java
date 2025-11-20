@@ -1,7 +1,22 @@
 package com.flightapp.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+<<<<<<< Updated upstream
+=======
+import com.flightapp.entity.*;
+import com.flightapp.repository.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.*;
+
+>>>>>>> Stashed changes
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+<<<<<<< Updated upstream
 import com.flightapp.entity.Flight;
 import com.flightapp.entity.FlightType;
 import com.flightapp.entity.Passenger;
@@ -97,5 +112,96 @@ class TicketServiceTest {
     
         assertTrue(ticket.isCanceled());
         assertEquals(6, departureFlight.getAvailableSeats());
+=======
+@ExtendWith(MockitoExtension.class)
+class TicketServiceTest {
+
+    @Mock FlightRepository flightRepository;
+    @Mock UserRepository userRepository;
+    @Mock TicketRepository ticketRepository;
+
+    @InjectMocks TicketService ticketService;
+
+    @Test
+    void testBookTicketSuccess() {
+        User user = new User();
+        user.setId(1L);
+
+        Flight dep = new Flight();
+        dep.setId(10L);
+        dep.setAvailableSeats(10);
+        dep.setPrice(100);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(flightRepository.findById(10L)).thenReturn(Optional.of(dep));
+
+        List<Passenger> passengers = List.of(new Passenger(), new Passenger());
+
+        Ticket savedTicket = new Ticket();
+        savedTicket.setPnr("12345678");
+
+        when(ticketRepository.save(any())).thenReturn(savedTicket);
+
+        String pnr = ticketService.bookTicket(1L, 10L, null, passengers, FlightType.ONE_WAY);
+
+        assertNotNull(pnr);
+        verify(flightRepository).save(dep);
+    }
+
+    @Test
+    void testBookTicketInsufficientSeats() {
+        User user = new User();
+        Flight dep = new Flight();
+        dep.setAvailableSeats(1);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(flightRepository.findById(10L)).thenReturn(Optional.of(dep));
+
+        List<Passenger> passengers = List.of(new Passenger(), new Passenger());
+
+        assertThrows(RuntimeException.class,
+                () -> ticketService.bookTicket(1L, 10L, null, passengers, FlightType.ONE_WAY));
+    }
+
+    @Test
+    void testGetHistory() {
+        User user = new User();
+        when(userRepository.findByEmail("x@gmail.com")).thenReturn(Optional.of(user));
+
+        when(ticketRepository.findByUser(user)).thenReturn(List.of(new Ticket()));
+
+        assertEquals(1, ticketService.getHistory("x@gmail.com").size());
+    }
+
+    @Test
+    void testGetTicketByPnr() {
+        Ticket t = new Ticket();
+        when(ticketRepository.findByPnr("PNR123")).thenReturn(Optional.of(t));
+
+        assertEquals(t, ticketService.getTicketByPnr("PNR123"));
+    }
+
+    @Test
+    void testCancelTicketSuccess() {
+        Ticket ticket = new Ticket();
+        User user = new User();
+        user.setEmail("abc@gmail.com");
+        ticket.setUser(user);
+        ticket.setCanceled(false);
+
+        Flight dep = new Flight();
+        dep.setAvailableSeats(5);
+        dep.setDepartureTime(LocalDateTime.now().plusDays(2));
+
+        ticket.setDepartureFlight(dep);
+        ticket.setPassengers(List.of(new Passenger()));
+
+        when(ticketRepository.findByPnr("P1")).thenReturn(Optional.of(ticket));
+
+        String result = ticketService.cancelTicket("P1", "abc@gmail.com");
+
+        assertEquals("Cancelled Successfully", result);
+        verify(flightRepository).save(dep);
+>>>>>>> Stashed changes
     }
 }

@@ -8,6 +8,7 @@ import com.flightapp.service.FlightService;
 import com.flightapp.service.TicketService;
 
 import org.springframework.web.bind.annotation.*;
+
 import java.util.*;
 @RestController
 @RequestMapping("/api/v1.0/flight/airline")
@@ -37,7 +38,8 @@ public class AdminController {
     public List<Ticket> getAllTickets(){
     	return ticketService.getAllTickets();
     }
-    @PostMapping("/inventory/add")
+    @PostMapping(value="/inventory/add",consumes = "application/json",
+    	    produces = "application/json")
     public String addFlight(@RequestBody Flight flight) {
         flightService.addFlight(flight);
         return "Flight added successfully";

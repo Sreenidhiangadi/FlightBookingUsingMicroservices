@@ -19,6 +19,7 @@
 
     <properties>
         <java.version>17</java.version>
+         <sonar.organization>sreenidhiangadi</sonar.organization>
     </properties>
 
     <dependencies>
@@ -27,11 +28,29 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+<!-- Mockito -->
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>5.7.0</version>
+    <scope>test</scope>
+</dependency>
 
+<!-- Mockito with JUnit 5 -->
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-junit-jupiter</artifactId>
+    <version>5.7.0</version>
+    <scope>test</scope>
+</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+       <dependency>
+    <groupId>com.fasterxml.jackson.datatype</groupId>
+    <artifactId>jackson-datatype-jsr310</artifactId>
+</dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -72,6 +91,36 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+<plugin>
+  <groupId>org.jacoco</groupId>
+  <artifactId>jacoco-maven-plugin</artifactId>
+  <version>0.8.12</version>
+  <executions>
+    <!-- attach agent so tests are instrumented -->
+    <execution>
+      <id>prepare-agent</id>
+      <goals>
+        <goal>prepare-agent</goal>
+      </goals>
+    </execution>
+
+    <!-- generate XML+HTML after tests (verify phase) -->
+    <execution>
+      <id>report</id>
+      <phase>verify</phase>
+      <goals>
+        <goal>report</goal>
+      </goals>
+      <configuration>
+        <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+        <reports>
+          <report>xml</report>
+          <report>html</report>
+        </reports>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
 
             <!-- PMD Plugin -->
             <plugin>

@@ -1,13 +1,17 @@
 package com.flightapp.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.flightapp.entity.Flight;
+import com.flightapp.repository.FlightRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+<<<<<<< Updated upstream
 class FlightServiceTest {
 
     @Test
@@ -32,10 +36,62 @@ class FlightServiceTest {
 
         assertEquals("Air India", flight.getAirline());
         assertEquals(5500, flight.getPrice());
+=======
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class FlightServiceTest {
+
+    @Mock
+    FlightRepository flightRepository;
+
+    @InjectMocks
+    FlightService flightService;
+
+    @Test
+    void testAddFlight() {
+        Flight flight = new Flight();
+        flightService.addFlight(flight);
+        verify(flightRepository).save(flight);
+    }
+
+    @Test
+    void testDeleteFlight() {
+        String result = flightService.deleteFlight(1L);
+        assertEquals("Flight deleted succesfully", result);
+        verify(flightRepository).deleteById(1L);
+    }
+
+    @Test
+    void testGetAllFlights() {
+        when(flightRepository.findAll()).thenReturn(List.of(new Flight()));
+        assertEquals(1, flightService.getAllFlights().size());
+    }
+
+    @Test
+    void testUpdateFlight() {
+        Flight flight = new Flight();
+        flight.setAirline("Old");
+        flight.setFromPlace("A");
+
+        when(flightRepository.findById(1L)).thenReturn(Optional.of(flight));
+        when(flightRepository.save(any())).thenReturn(flight);
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("airline", "New");
+        updates.put("fromPlace", "B");
+
+        Flight updated = flightService.updateFlight(1L, updates);
+
+        assertEquals("New", updated.getAirline());
+        assertEquals("B", updated.getFromPlace());
+>>>>>>> Stashed changes
     }
 
     @Test
     void testSearchFlightById() {
+<<<<<<< Updated upstream
         Flight flight = new Flight();
         flight.setId(1L);
         Flight foundFlight = flight; 
@@ -62,5 +118,21 @@ class FlightServiceTest {
         String message = "Flight deleted successfully";
 
         assertEquals("Flight deleted successfully", message);
+=======
+        Flight f = new Flight();
+        when(flightRepository.findById(1L)).thenReturn(Optional.of(f));
+
+        assertEquals(f, flightService.searchFlightById(1L));
+    }
+
+    @Test
+    void testSearchFlights() {
+        when(flightRepository.findByFromPlaceAndToPlaceAndDepartureTimeBetween(
+                anyString(), anyString(), any(), any()))
+                .thenReturn(List.of(new Flight()));
+
+        assertEquals(1, flightService.searchFlights("A", "B",
+                LocalDateTime.now(), LocalDateTime.now().plusHours(2)).size());
+>>>>>>> Stashed changes
     }
 }

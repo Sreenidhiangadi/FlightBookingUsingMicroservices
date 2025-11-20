@@ -1,6 +1,8 @@
 package com.flightapp.controller;
 
 import java.time.LocalDateTime;
+import org.springframework.http.HttpStatus;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flightapp.entity.Flight;
@@ -36,6 +39,7 @@ public class UserController {
         this.ticketService = ticketService;
     }
     @PostMapping("/user/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public User register(@RequestBody User user) {
         return authService.register(user);
     }
@@ -69,6 +73,7 @@ public class UserController {
 
 
     @PostMapping("/booking")
+    @ResponseStatus(HttpStatus.CREATED)
     public String bookTicket(@RequestBody Map<String, Object> requestBody) {
        
         Long userId = Long.parseLong(requestBody.get("userId").toString());
