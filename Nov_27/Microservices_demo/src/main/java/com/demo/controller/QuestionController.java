@@ -1,8 +1,5 @@
 package com.demo.controller;
 
-
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -41,12 +38,13 @@ public class QuestionController {
     }
 
     @GetMapping("/generate")
-    public ResponseEntity<List<Question>> getQuestionsForQuiz(
+    public ResponseEntity<List<Integer>> getQuestionsForQuiz(
             @RequestParam String categoryName,
             @RequestParam Integer numQuestions) {
         return questionService.getQuestionsForQuiz(categoryName, numQuestions);
     }
 
+ 
     @PostMapping("getQuestions")
     public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds){
         System.out.println(environment.getProperty("local.server.port"));
