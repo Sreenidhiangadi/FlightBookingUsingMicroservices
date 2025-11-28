@@ -40,14 +40,14 @@ public class AdminController {
 
 	@PostMapping("/admin/login")
 	@ResponseStatus(HttpStatus.OK)
-	public Mono<String> adminLogin(@Valid @RequestBody User user) {
+	public Mono<String> adminLogin( @RequestBody User user) {
 		return authService.login(user.getEmail(), user.getPassword());
 
 	}
 
 	@PostMapping("/getadmin")
 	@ResponseStatus(HttpStatus.OK)
-	public Mono<User> getAdmin(@Valid @RequestBody User user) {
+	public Mono<User> getAdmin( @RequestBody User user) {
 		return authService.getAdmin(user.getEmail());
 
 	}
