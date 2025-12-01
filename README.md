@@ -50,42 +50,10 @@ Each service runs independently with its own database and communicates through *
 
 ---
 
-##  Microservices Architecture (Mermaid)
+##  ER Diagram 
 
 ```mermaid
-flowchart LR
-
-subgraph Client
-    A[User / Admin]
-end
-
-A --> G[API Gateway]
-
-subgraph Discovery
-    E[Eureka Server]
-end
-
-G -->|Service Lookup| E
-
-G --> U[User Service]
-G --> F[Flight Service]
-G --> B[Booking Service]
-
-B -->|Publishes events| K[(Kafka Topic: booking-events)]
-N[Notification Service] -->|Consumes events| K
-
-subgraph Databases
-    UDB[(MongoDB: userdb)]
-    FDB[(MongoDB: flightdb)]
-    BDB[(MongoDB: bookingdb)]
-end
-
-U --> UDB
-F --> FDB
-B --> BDB
----
-erDiagram
-    USER ||--o{ TICKET : books
+USER ||--o{ TICKET : books
     FLIGHT ||--o{ TICKET : includes
     TICKET ||--o{ PASSENGER : contains
 
