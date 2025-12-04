@@ -1,5 +1,6 @@
 package com.flightapp.service.impl;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -121,25 +122,52 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public Mono<String> cancelByPnr(String pnr) {
-		return ticketRepository.findByPnr(pnr)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "PNR not found")))
-				.flatMap(ticket -> {
-					if (ticket.isCanceled())
-						return Mono.just("Ticket already cancelled");
+	    return ticketRepository.findByPnr(pnr)
+	            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "PNR not found")))
+	            .flatMap(ticket -> {
+	                if (ticket.isCanceled()) {
+	                    return Mono.just("Ticket already cancelled");
+	                }
 
-					int seatCount = (ticket.getSeatsBooked() != null && !ticket.getSeatsBooked().isEmpty())
-							? ticket.getSeatsBooked().split(",").length
-							: 1;
+	                return Mono.fromCallable(() -> flightClient.getFlight(ticket.getDepartureFlightId()))
+	                        .subscribeOn(Schedulers.boundedElastic())
+	                        .flatMap(flightDto -> {
+	                            LocalDateTime departureTime = flightDto.getDepartureTime();
 
-					return Mono.fromCallable(() -> {
-						flightClient.releaseSeats(ticket.getDepartureFlightId(), seatCount);
-						if (ticket.getReturnFlightId() != null) {
-							flightClient.releaseSeats(ticket.getReturnFlightId(), seatCount);
-						}
-						return true;
-					}).subscribeOn(Schedulers.boundedElastic()).then(updateCancellation(ticket));
-				});
+	                            if (departureTime == null) {
+	                                return Mono.error(new ResponseStatusException(
+	                                        HttpStatus.BAD_REQUEST,
+	                                        "Departure time unavailable, cannot evaluate cancellation window"
+	                                ));
+	                            }
+
+	                            long hoursUntilDeparture =
+	                                    Duration.between(LocalDateTime.now(), departureTime).toHours();
+
+	                            if (hoursUntilDeparture < 24) {
+	                                return Mono.error(new ResponseStatusException(
+	                                        HttpStatus.BAD_REQUEST,
+	                                        "Ticket cannot be cancelled within 24 hours of departure"
+	                                ));
+	                            }
+
+	                            int seatCount = (ticket.getSeatsBooked() != null && !ticket.getSeatsBooked().isEmpty())
+	                                    ? ticket.getSeatsBooked().split(",").length
+	                                    : 1;
+
+	                            return Mono.fromCallable(() -> {
+	                                        flightClient.releaseSeats(ticket.getDepartureFlightId(), seatCount);
+	                                        if (ticket.getReturnFlightId() != null) {
+	                                            flightClient.releaseSeats(ticket.getReturnFlightId(), seatCount);
+	                                        }
+	                                        return true;
+	                                    })
+	                                    .subscribeOn(Schedulers.boundedElastic())
+	                                    .then(updateCancellation(ticket));
+	                        });
+	            });
 	}
+
 
 	private Mono<String> updateCancellation(Ticket ticket) {
 		ticket.setCanceled(true);
